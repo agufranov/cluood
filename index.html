@@ -174,6 +174,7 @@
     min-height:3.4em;margin:2px 0 0;
     font-size:15.5px;line-height:1.45;
     color:rgba(240,230,210,.9);
+    scroll-margin-bottom:96px;
   }
   .fb .mark{
     font-family:var(--cond);font-weight:700;letter-spacing:.1em;
@@ -392,6 +393,23 @@
     text-transform:uppercase;font-size:12px;color:rgba(240,230,210,.7);
   }
   .final .colophon b{color:var(--paper)}
+  /* ---------- next button (mobile) ---------- */
+  .btn-next{
+    position:fixed;right:14px;bottom:14px;z-index:40;
+    display:none;
+    font-family:var(--cond);font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;font-size:12px;
+    background:rgba(26,21,18,.72);color:rgba(240,230,210,.85);
+    border:2px solid rgba(240,230,210,.35);
+    border-radius:999px;
+    padding:9px 16px;cursor:pointer;
+  }
+  .btn-next:active{background:rgba(26,21,18,.9)}
+  .btn-next:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+  .btn-next.hidden{display:none !important}
+  @media (max-width:760px){
+    .btn-next{display:block}
+  }
 </style>
 
 <header class="hud">
@@ -807,6 +825,8 @@
 
 </main>
 
+<button class="btn-next" id="btn-next" aria-label="К следующему экрану">Дальше ↓</button>
+
 <script>
 (function(){
   var hudScore=document.getElementById("hud-score");
@@ -905,6 +925,25 @@
   }
 
   document.getElementById("btn-retry").addEventListener("click",resetAll);
+
+  var btnNext=document.getElementById("btn-next");
+  var allPanels=[].slice.call(document.querySelectorAll(".panel"));
+  btnNext.addEventListener("click",function(){
+    for(var k=0;k<allPanels.length;k++){
+      if(allPanels[k].getBoundingClientRect().top>70){
+        allPanels[k].scrollIntoView({behavior:reduce?"auto":"smooth"});
+        return;
+      }
+    }
+  });
+  if("IntersectionObserver" in window){
+    var finalIo=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        btnNext.classList.toggle("hidden",e.isIntersecting);
+      });
+    },{threshold:.4});
+    finalIo.observe(document.getElementById("final"));
+  }
 
   if("IntersectionObserver" in window && !reduce){
     var io=new IntersectionObserver(function(entries){
